@@ -38,9 +38,9 @@ const LB_CONFIG = {
   weights: {
     grand:     1.2,
     doubleHit: 4.0,
-    first:     8.0,
+    first:     3.5,
     second:   45.0,
-    third:    41.8,
+    third:    46.3,
   },
 
   /* chance that a "third"/"second" outcome shows one emblem

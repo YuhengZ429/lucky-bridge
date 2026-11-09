@@ -112,8 +112,8 @@ async function handleApi(req, res, pathname) {
   }
   if (req.method === 'POST' && pathname === '/api/claimAll') {
     const body = await readBody(req).catch(() => ({}));
-    const claimed = PRIZES.filter(p => state.inv[p.id] > 0).map(p => ({ id: p.id, qty: state.inv[p.id] }));
-    for (const p of PRIZES) state.inv[p.id] = 0;
+    const claimed = PRIZES.filter(p => state.inv[p.id] > 0).map(p => ({ id: p.id, qty: 1 }));
+    for (const c of claimed) state.inv[c.id] -= c.qty;
     state.log.push(logEntry(body.tier || 'GRAND PRIZE', claimed));
     if (state.log.length > 500) state.log = state.log.slice(-500);
     persist();

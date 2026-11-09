@@ -7,7 +7,7 @@ A showy arcade-style slot machine lucky-draw web app for the **iGEM 2026 CSU-Chi
 ## ✨ Features
 
 - **One-armed bandit lever** — a gold side-axis press lever (mount slab + straight rod + glossy red ball, faithful to the classic form) that swings down in a real arc
-- **Weighted outcomes, everyone wins** — three different / a pair / three of a kind / two BRIDGE emblems / three emblems (Grand Prize: take everything)
+- **Weighted outcomes, everyone wins** — three different / a pair / three of a kind / two BRIDGE emblems / three emblems (Grand Prize: one of each prize)
 - **Neon suspense** — winning frames blink casino-neon for ~2.4 s before the result dialog opens
 - **Shared inventory** — a Node backend owns the prize pool & claim log; every device playing the same link deducts from one pool (server-side atomic checks, no over-claiming)
 - **Staff tools** — 4-digit PIN-protected reset (server-verified), live claim log, per-prize stock display
@@ -52,7 +52,7 @@ tools/                asset-processing scripts (trim/compress artwork)
 | a matching pair | pick **2** regular prizes |
 | 3 of a kind | pick **3** regular prizes |
 | 2 BRIDGE emblems | 2 regular **+ 1 special** (coaster) |
-| 3 BRIDGE emblems | **take everything** 🎉 |
+| 3 BRIDGE emblems | **one of each prize** 🎉 |
 
 A single BRIDGE emblem counts as a normal symbol.
 
