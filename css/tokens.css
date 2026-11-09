@@ -1,0 +1,64 @@
+/* ============================================================
+   LUCKY BRIDGE — design tokens
+   Mirrors the BRIDGE (iGEM 2026 CSU-China) visual system:
+   16-colour palette, Space Grotesk, card surfaces, hairlines,
+   soft colour washes. Single source of truth for this site.
+   ============================================================ */
+:root {
+  /* ===== palette ===== */
+  --clinical-white: #F8FCFF;
+  --cell-mist:      #AEE8E4;
+  --data-cyan:      #DDF2FF;
+  --info-blue:      #77A0BC;
+  --bridge-navy:    #2D5A7F;
+  --deep-sea:       #234256;
+  --ink:            #17324A;
+  --aqua-cyan:      #53DBD3;
+  --deep-teal:      #17B7AE;
+  --soft-lavender:  #C3B7FF;
+  --deep-purple:    #6E7BEB;
+  --signal-coral:   #FF8A7A;
+  --research-amber: #F4C76B;
+
+  /* ===== roles ===== */
+  --bg: var(--clinical-white);
+  --surface: #ffffff;
+  --surface-soft: #fbfdff;
+  --border: #d9e2f1;
+  --border-soft: #e3ecf7;
+  --text: var(--ink);
+  --text-muted: #8892a6;
+  --fg-deep: var(--deep-sea);
+  --fg-navy: var(--bridge-navy);
+  --fg-info: var(--info-blue);
+  --accent: #165DFF;
+  --accent-strong: #0f3fae;
+  --accent-bg: #eef4ff;
+  --shadow-rgb: 35, 66, 86;
+
+  --hero-wash: rgba(221, 242, 255, .55);
+  --wash-warm: rgba(255, 244, 242, .5);
+
+  --font-en: 'Space Grotesk', ui-rounded, 'SF Pro Rounded', 'Segoe UI', system-ui, sans-serif;
+
+  --radius: 16px;
+  --radius-lg: 22px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-en);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden; overflow-x: clip; /* clip cannot be panned by focus/auto-scroll */
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--aqua-cyan); color: var(--deep-sea); }
+
+img { -webkit-user-drag: none; user-select: none; }
+
+button { font-family: inherit; }

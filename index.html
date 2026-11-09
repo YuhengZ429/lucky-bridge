@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky BRIDGE — iGEM 2026 CSU-China Lucky Draw</title>
+  <meta name="description" content="Pull the lever, match the mascots, and take home CSU-China merch. An iGEM 2026 lucky draw by BRIDGE." />
+  <link rel="icon" href="assets/symbols/special.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css?v=2" />
+  <link rel="stylesheet" href="css/main.css?v=4" />
+</head>
+<body>
+
+  <!-- ======= nav ======= -->
+  <header class="topnav">
+    <div class="wrap">
+      <div class="brand">
+        <img src="assets/symbols/special.png" alt="BRIDGE emblem" />
+        <span>LUCKY&nbsp;BRIDGE</span>
+        <span class="tag">iGEM&nbsp;2026 · CSU-CHINA</span>
+      </div>
+      <nav>
+        <a href="#play">Play</a>
+        <a href="#prizes">Prizes</a>
+        <a href="#rules">Rules</a>
+      </nav>
+      <button class="iconbtn" id="muteBtn" type="button" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+    </div>
+  </header>
+
+  <!-- ======= hero + machine ======= -->
+  <section class="hero" id="play">
+    <div class="wrap">
+      <span class="eyebrow">iGEM 2026 · CSU-CHINA · LUCKY DRAW</span>
+      <h1>PULL THE LEVER AND GET <em>GIFTS</em></h1>
+
+      <div class="machine-stage">
+        <div class="machine" id="machine">
+          <div class="cabinet">
+            <div class="arch">
+              <div class="arch-lights">
+                <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i>
+              </div>
+              <div class="marquee">
+                <span>LUCKY&nbsp;BRIDGE</span>
+              </div>
+            </div>
+
+            <div class="body-plate">
+              <div class="reels" id="reels">
+                <div class="reel" data-reel="0"><div class="strip"></div></div>
+                <div class="reel" data-reel="1"><div class="strip"></div></div>
+                <div class="reel" data-reel="2"><div class="strip"></div></div>
+                <div class="payline"></div>
+              </div>
+
+              <div class="deck">
+                <button class="btn-spin" id="spinBtn" type="button">SPIN</button>
+              </div>
+            </div>
+
+            <div class="tray"><div class="tray-slot"></div></div>
+          </div>
+
+          <div class="lever" id="lever" title="Pull to spin" role="button" tabindex="0" aria-label="Pull the lever to spin">
+            <div class="rod"><div class="ball"></div></div>
+            <div class="disc"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status" id="status" aria-live="polite">Press <b>SPIN</b> or pull the lever to start</div>
+    </div>
+  </section>
+
+  <!-- ======= prizes ======= -->
+  <section class="section" id="prizes">
+    <div class="wrap">
+      <div class="head head-row">
+        <div>
+          <span class="eyebrow">THE PRIZES</span>
+          <h2 class="section-title">What you can win</h2>
+        </div>
+        <button class="btn-link" id="logBtn" type="button">📋 Claim log</button>
+      </div>
+      <div class="prize-grid" id="prizeGrid"><!-- filled by JS --></div>
+    </div>
+  </section>
+
+  <!-- ======= rules ======= -->
+  <section class="section" id="rules" style="padding-top:10px">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">THE RULES</span>
+        <h2 class="section-title">Every spin wins.</h2>
+      </div>
+      <div class="rules-grid" id="rulesGrid"><!-- filled by JS --></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div>Built with ❤️ by <b>BRIDGE</b> — iGEM 2026 · CSU-China · Synthetic Biology lucky draw</div>
+      <div class="staff">
+        <button id="resetBtn" type="button">Staff: reset prize stock &amp; claim log</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======= win modal ======= -->
+  <div class="overlay" id="winOverlay">
+    <div class="modal">
+      <button class="modal-x" type="button" aria-label="Close">✕</button>
+      <div class="tier-line"><span class="tier-chip" id="winChip">THIRD PRIZE</span></div>
+      <h2 id="winTitle">You won a prize!</h2>
+      <p class="reward" id="winReward">Pick 1 regular prize</p>
+      <div class="symbols-line" id="winSymbols"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="winPickBtn" type="button">Choose my prizes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= picker modal ======= -->
+  <div class="overlay" id="pickOverlay">
+    <div class="modal">
+      <button class="modal-x" type="button" aria-label="Close">✕</button>
+      <h2 style="font-size:24px">Choose your prizes</h2>
+      <div class="pick-budget" id="pickBudget">Selected <span class="n">0 / 2</span></div>
+      <div id="pickNormalSection">
+        <div class="pick-section-label" style="color:var(--bridge-navy)">Regular prizes</div>
+        <div class="pick-grid" id="pickNormal"></div>
+      </div>
+      <div id="pickSpecialSection" style="display:none">
+        <div class="pick-section-label">⭐ Special prize</div>
+        <div class="pick-grid" id="pickSpecial"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="pickConfirm" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= receipt modal ======= -->
+  <div class="overlay" id="receiptOverlay">
+    <div class="modal">
+      <button class="modal-x" type="button" aria-label="Close">✕</button>
+      <h2 style="font-size:26px">🎉 Claimed!</h2>
+      <p class="reward">Here's what you're taking home:</p>
+      <div class="receipt-list" id="receiptList"></div>
+      <div class="receipt-note">📌 Show this screen to our staff to collect your prizes.</div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="receiptDone" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= claim log modal ======= -->
+  <div class="overlay" id="logOverlay">
+    <div class="modal">
+      <button class="modal-x" type="button" aria-label="Close">✕</button>
+      <h2 style="font-size:26px">📋 Claim log</h2>
+      <p class="reward" id="logSummary"></p>
+      <div class="log-list" id="logList"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="logClear" type="button">Clear log</button>
+        <button class="btn btn-primary" id="logClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= staff PIN modal ======= -->
+  <div class="overlay" id="pinOverlay">
+    <div class="modal pin-modal">
+      <button class="modal-x" type="button" aria-label="Close">✕</button>
+      <h2 style="font-size:24px">🔐 Staff access</h2>
+      <p class="reward">Enter the 4-digit PIN to reset</p>
+      <div class="pin-dots" id="pinDots"><i></i><i></i><i></i><i></i></div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="keypad" id="keypad">
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" data-key="C">C</button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" data-key="B">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= grand prize ======= -->
+  <div class="grand" id="grandOverlay">
+    <button class="modal-x grand-x" type="button" aria-label="Close">✕</button>
+    <div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <img class="emblem" src="assets/symbols/special.png" alt="BRIDGE emblem" />
+      <div><span class="chip">GRAND PRIZE · 特等奖</span></div>
+      <h2>TAKE THEM ALL!</h2>
+      <p class="sub">Three BRIDGE emblems — you've won <b style="color:#ffd98a">every single prize</b> left on the table.</p>
+      <div class="items" id="grandItems"></div>
+      <button class="btn btn-primary" id="grandClaim" type="button">CLAIM EVERYTHING</button>
+    </div>
+  </div>
+
+  <canvas id="confetti"></canvas>
+  <div id="toast"></div>
+
+  <script src="js/lb-settings.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/slot.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
