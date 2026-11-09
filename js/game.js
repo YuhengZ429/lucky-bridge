@@ -265,7 +265,7 @@
       { cls: 't2', chip: 'SECOND PRIZE', icons: [syms.anxious, syms.anxious, syms.confused],       cond: 'A PAIR',      pick: 'PICK 2' },
       { cls: 't1', chip: 'FIRST PRIZE',  icons: [syms.greeting, syms.greeting, syms.greeting],     cond: '3 OF A KIND', pick: 'PICK 3' },
       { cls: 'td', chip: 'SPECIAL PAIR', icons: [S, S, syms.back],                                  cond: '2 EMBLEMS',   pick: '2 + 1 ⭐' },
-      { cls: 'tg', chip: 'GRAND PRIZE',  icons: [S, S, S],                                          cond: '3 EMBLEMS',   pick: '1 OF EACH' },
+      { cls: 'tg', chip: 'GRAND PRIZE',  icons: [S, S, S],                                          cond: '3 EMBLEMS',   pick: 'Take All' },
     ];
     const grid = $('rulesGrid');
     grid.innerHTML = '';
