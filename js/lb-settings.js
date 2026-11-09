@@ -6,25 +6,25 @@
 const LB_CONFIG = {
   /* ----- reel symbols (normal) ----- */
   symbols: [
-    { id: 'greeting',  name: 'Greeting',  img: 'assets/symbols/greeting.png?v=44791b5'  },
-    { id: 'proud',     name: 'Proud',     img: 'assets/symbols/proud.png?v=44791b5'     },
-    { id: 'shocked',   name: 'Shocked',   img: 'assets/symbols/shocked.png?v=44791b5'   },
-    { id: 'anxious',   name: 'Anxious',   img: 'assets/symbols/anxious.png?v=44791b5'   },
-    { id: 'confused',  name: 'Confused',  img: 'assets/symbols/confused.png?v=44791b5'  },
-    { id: 'back',      name: 'Peek',      img: 'assets/symbols/back.png?v=44791b5'      },
+    { id: 'greeting',  name: 'Greeting',  img: 'assets/symbols/greeting.png?v=e1e0ff5'  },
+    { id: 'proud',     name: 'Proud',     img: 'assets/symbols/proud.png?v=e1e0ff5'     },
+    { id: 'shocked',   name: 'Shocked',   img: 'assets/symbols/shocked.png?v=e1e0ff5'   },
+    { id: 'anxious',   name: 'Anxious',   img: 'assets/symbols/anxious.png?v=e1e0ff5'   },
+    { id: 'confused',  name: 'Confused',  img: 'assets/symbols/confused.png?v=e1e0ff5'  },
+    { id: 'back',      name: 'Peek',      img: 'assets/symbols/back.png?v=e1e0ff5'      },
   ],
 
   /* ----- the special symbol ----- */
-  special: { id: 'special', name: 'BRIDGE', img: 'assets/symbols/special.png?v=44791b5' },
+  special: { id: 'special', name: 'BRIDGE', img: 'assets/symbols/special.png?v=e1e0ff5' },
 
   /* ----- prizes -----
      stock is the initial inventory; live counts persist in
      localStorage so a page refresh never resets the table. */
   prizes: [
-    { id: 'keychain',    name: 'Keychain',       img: 'assets/prizes/keychain.jpg?v=44791b5',    stock: 90, special: false },
-    { id: 'postcard',    name: 'Postcard',       img: 'assets/prizes/postcard.jpg?v=44791b5',    stock: 90, special: false },
-    { id: 'stickersheet',name: 'Sticker Pack',   img: 'assets/prizes/stickersheet.jpg?v=44791b5',stock: 120, special: false },
-    { id: 'coaster',     name: 'Coaster',        img: 'assets/prizes/coaster.jpg?v=44791b5',     stock: 50, special: true  },
+    { id: 'keychain',    name: 'Keychain',       img: 'assets/prizes/keychain.jpg?v=e1e0ff5',    stock: 90, special: false },
+    { id: 'postcard',    name: 'Postcard',       img: 'assets/prizes/postcard.jpg?v=e1e0ff5',    stock: 90, special: false },
+    { id: 'stickersheet',name: 'Sticker Pack',   img: 'assets/prizes/stickersheet.jpg?v=e1e0ff5',stock: 120, special: false },
+    { id: 'coaster',     name: 'Coaster',        img: 'assets/prizes/coaster.jpg?v=e1e0ff5',     stock: 50, special: true  },
   ],
 
   /* ----- outcome weights (%), "generous" tuning -----
