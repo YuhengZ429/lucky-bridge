@@ -139,7 +139,7 @@ async function serveStatic(req, res, pathname) {
     const data = await readFile(file);
     res.writeHead(200, {
       'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      'Cache-Control': /\.html$|\.css$|\.js$|\.mjs$|\.json$/.test(file) ? 'no-cache' : 'public, max-age=3600',
+      'Cache-Control': 'no-cache',
       ...corsHeaders(req),
     });
     res.end(data);
