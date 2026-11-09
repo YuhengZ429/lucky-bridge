@@ -122,8 +122,8 @@
                 reward: n => `Pick <b>${n}</b> regular prizes` },
     doubleHit:{ key: 'doubleHit',chip: 'SPECIAL PAIR', title: 'Double BRIDGE!',       normal: 2, special: 1, cls: 'td', winKind: 'doubleHit',
                 reward: n => `Pick <b>2</b> regular prizes <b>+ 1 special prize</b>` },
-    grand:    { key: 'grand',    chip: 'GRAND PRIZE',  title: 'TAKE THEM ALL!',       normal: 0, special: 0, cls: 'tg', winKind: 'grand',
-                reward: () => `You take <b>everything</b> that's left!` },
+    grand:    { key: 'grand',    chip: 'GRAND PRIZE',  title: 'ONE OF EACH!',         normal: 0, special: 0, cls: 'tg', winKind: 'grand',
+                reward: () => `Take <b>one of each</b> prize!` },
   };
   const tier = (k) => TIERS[k];
 
@@ -265,7 +265,7 @@
       { cls: 't2', chip: 'SECOND PRIZE', icons: [syms.anxious, syms.anxious, syms.confused],       cond: 'A PAIR',      pick: 'PICK 2' },
       { cls: 't1', chip: 'FIRST PRIZE',  icons: [syms.greeting, syms.greeting, syms.greeting],     cond: '3 OF A KIND', pick: 'PICK 3' },
       { cls: 'td', chip: 'SPECIAL PAIR', icons: [S, S, syms.back],                                  cond: '2 EMBLEMS',   pick: '2 + 1 ⭐' },
-      { cls: 'tg', chip: 'GRAND PRIZE',  icons: [S, S, S],                                          cond: '3 EMBLEMS',   pick: 'TAKE ALL!' },
+      { cls: 'tg', chip: 'GRAND PRIZE',  icons: [S, S, S],                                          cond: '3 EMBLEMS',   pick: '1 OF EACH' },
     ];
     const grid = $('rulesGrid');
     grid.innerHTML = '';
@@ -439,8 +439,8 @@
     });
     $('grandClaim').onclick = async () => {
       if (SERVER_MODE === false) {
-        const lines = C.prizes.filter(p => inventory[p.id] > 0).map(p => ({ p, qty: inventory[p.id] }));
-        for (const p of C.prizes) inventory[p.id] = 0;
+        const lines = C.prizes.filter(p => inventory[p.id] > 0).map(p => ({ p, qty: 1 }));
+        for (const l of lines) inventory[l.p.id] -= 1;
         localLogEntry('GRAND PRIZE', lines);
         localPersist(); renderPrizeGrid();
         $('grandOverlay').classList.remove('show');
@@ -494,7 +494,7 @@
           // all three for a triple; all-different wins flash nothing.
           if (t.key !== 'third') LB_SLOT.flashReels(glowIdx);
           if (t.key === 'grand') {
-            setStatus('🌟 <b>GRAND PRIZE!</b> Take everything!');
+            setStatus('🌟 <b>GRAND PRIZE!</b> One of each prize!');
           } else {
             setStatus(`🎉 ${t.chip} — ${t.reward(t.normal).replace(/<[^>]+>/g, '')}`);
             LB_AUDIO.win(t.winKind);
