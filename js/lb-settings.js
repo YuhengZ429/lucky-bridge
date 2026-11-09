@@ -56,4 +56,14 @@ const LB_CONFIG = {
   },
 
   muteKey: 'luckyBridge.muted.v1',
+
+  /* ----- hosting / shared-inventory API -----
+     apiBase is used ONLY when the page is hosted on GitHub Pages
+     (same-origin deployments ignore it and use relative /api/*).
+     Point it at the Render service URL. If the API cannot be reached,
+     the page automatically falls back to per-device local mode. */
+  apiBase: 'https://lucky-bridge-api.onrender.com',
+
+  /* PIN used in local/offline mode (no server to verify it) */
+  localPin: '2026',
 };

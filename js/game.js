@@ -9,27 +9,67 @@
   const C = LB_CONFIG;
   const $ = (id) => document.getElementById(id);
 
-  /* ================= shared state (server-authoritative) =================
-     The inventory and claim log live on the server so every device
-     playing the public link deducts from the SAME pool. `inventory`
-     and `claimLog` below are just caches of the latest server state. */
+  /* ============ prize state: shared server pool, local fallback ============
+     Preferred: the shared-inventory API (every device playing the public
+     link deducts from the SAME pool). If the API is unreachable — e.g. the
+     static page is served from GitHub Pages before the backend exists —
+     the page automatically falls back to per-device local mode. */
   let inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
   let claimLog = [];
+  let SERVER_MODE = null; // null = probing, true = shared API, false = local
 
-  async function api(path, body) {
-    const res = await fetch('/api/' + path, body ? {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-    } : undefined);
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status, data });
-    return data;
+  /* on GitHub Pages the API lives on a separate host (C.apiBase);
+     anywhere else (same-origin hosting) use relative /api/* */
+  const API_BASE = (location.hostname.endsWith('.github.io') && C.apiBase) ? C.apiBase : '';
+
+  async function api(path, body, timeoutMs = 12000) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(API_BASE + '/api/' + path, body ? {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal,
+      } : { signal: ctrl.signal });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status, data });
+      return data;
+    } finally { clearTimeout(timer); }
   }
+
+  /* ----- local (per-device) fallback mode ----- */
+  function localLoad() {
+    try { const v = JSON.parse(localStorage.getItem('luckyBridge.inv.v3')); if (v) inventory = v; } catch {}
+    try { const a = JSON.parse(localStorage.getItem('luckyBridge.log.v3')); if (Array.isArray(a)) claimLog = a; } catch {}
+    if (!inventory || C.prizes.some(p => !Number.isFinite(inventory[p.id]))) {
+      inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
+    }
+  }
+  function localPersist() {
+    localStorage.setItem('luckyBridge.inv.v3', JSON.stringify(inventory));
+    localStorage.setItem('luckyBridge.log.v3', JSON.stringify(claimLog));
+  }
+  function enterLocalMode(notify) {
+    if (SERVER_MODE === false) return;
+    SERVER_MODE = false;
+    localLoad();
+    renderPrizeGrid();
+    if (notify) toast('⚠️ Offline mode — this device keeps its own stock');
+  }
+  function localLogEntry(tier, lines) {
+    claimLog.push({ t: new Date().toISOString(), tier, items: lines.map(({ p, qty }) => ({ name: p.name, qty, special: !!p.special })) });
+    if (claimLog.length > 500) claimLog = claimLog.slice(-500);
+  }
+
   async function refreshState() {
+    if (SERVER_MODE === false) { localLoad(); renderPrizeGrid(); return; }
     try {
       const s = await api('state');
+      SERVER_MODE = true;
       inventory = s.inv; claimLog = s.log;
       renderPrizeGrid();
-    } catch { /* offline — keep the cached view */ }
+    } catch {
+      if (SERVER_MODE === true) return;  // transient hiccup — keep the cached view
+      enterLocalMode(true);              // API unreachable → local mode
+    }
   }
 
   function renderLog() {
@@ -341,6 +381,14 @@
       const n = pickState.sel[p.id] || 0;
       if (n > 0) { lines.push({ p, qty: n }); items.push({ id: p.id, qty: n }); }
     }
+    if (SERVER_MODE === false) {           // local mode: mutate this device's copy
+      for (const it of items) inventory[it.id] = Math.max(0, (inventory[it.id] || 0) - it.qty);
+      localLogEntry(pickState.t.chip, lines);
+      localPersist(); renderPrizeGrid();
+      hideOverlay($('pickOverlay'));
+      showReceipt(lines);
+      return;
+    }
     try {
       const r = await api('claim', { tier: pickState.t.chip, items });
       inventory = r.inv; claimLog = r.log; renderPrizeGrid();
@@ -390,6 +438,15 @@
       items.appendChild(div);
     });
     $('grandClaim').onclick = async () => {
+      if (SERVER_MODE === false) {
+        const lines = C.prizes.filter(p => inventory[p.id] > 0).map(p => ({ p, qty: inventory[p.id] }));
+        for (const p of C.prizes) inventory[p.id] = 0;
+        localLogEntry('GRAND PRIZE', lines);
+        localPersist(); renderPrizeGrid();
+        $('grandOverlay').classList.remove('show');
+        showReceipt(lines);
+        return;
+      }
       try {
         const r = await api('claimAll', { tier: 'GRAND PRIZE' });
         const lines = (r.claimed || []).map(c => ({ p: C.prizes.find(p => p.id === c.id), qty: c.qty }));
@@ -492,6 +549,15 @@
   async function submitPin() {
     const pin = pinBuf;
     pinBuf = '';
+    if (SERVER_MODE === false) {           // local mode: compare against the local PIN
+      if (pin !== String(C.localPin)) { wrongPin(); return; }
+      inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
+      claimLog = [];
+      localPersist(); renderPrizeGrid();
+      hideOverlay(pinModal);
+      toast('Prize stock & claim log have been reset ✅');
+      return;
+    }
     try {
       const r = await api('reset', { pin });
       inventory = r.inv; claimLog = r.log; renderPrizeGrid();
@@ -577,7 +643,18 @@
     generate: generateOutcome,
     inventory: () => ({ ...inventory }),
     log: () => [...claimLog],
-    reset: (pin) => api('reset', { pin }),
+    mode: () => SERVER_MODE,
+    async reset(pin) {
+      if (SERVER_MODE === false) {
+        inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
+        claimLog = [];
+        localPersist(); renderPrizeGrid();
+        return { inv: inventory, log: claimLog };
+      }
+      const r = await api('reset', { pin });
+      inventory = r.inv; claimLog = r.log; renderPrizeGrid();
+      return r;
+    },
     refresh: refreshState,
     confetti,
     runTest() {
