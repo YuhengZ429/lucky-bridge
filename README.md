@@ -59,3 +59,23 @@ A single BRIDGE emblem counts as a normal symbol.
 ---
 
 Built with ❤️ by BRIDGE · iGEM 2026 · CSU-China
+
+## 🌐 Hosting
+
+**Frontend — GitHub Pages** (this repo): <https://yuhengz429.github.io/lucky-bridge/>
+The `gh-pages` branch holds the static build; update it after changing the frontend.
+
+**Shared-inventory backend — Render free tier:**
+1. Sign up at [render.com](https://render.com) with your GitHub account
+2. New → **Web Service** → connect this repo
+3. Name it exactly `lucky-bridge-api` · Branch `main` · Build command *(empty)* · Start command `node server/server.mjs` · Instance **Free**
+4. Open `https://lucky-bridge-api.onrender.com/api/state` — JSON means it's alive
+
+The page auto-detects the backend: shared pool when reachable, per-device local mode otherwise (a toast announces it). Free instances sleep after 15 min idle — open the link once before an event; the 15 s stock poll keeps it awake while anyone plays.
+
+> A one-command static rebuild for `gh-pages`:
+> ```bash
+> git worktree add /tmp/lb-pages gh-pages && cd /tmp/lb-pages \
+>   && git checkout gh-pages -- . && git pull
+> # copy index.html css js assets → commit → git push
+> ```
