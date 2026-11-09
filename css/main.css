@@ -663,7 +663,11 @@ button, .pick-item, .lever { touch-action: manipulation; }
 /* phones: shrink so cabinet+lever fit, and nudge left so the whole
    assembly (lever included) is optically centred in the viewport */
 @media (max-width: 560px) {
-  .machine { transform: scale(.52); margin: -105px 0 -118px -45px; }
+  /* no negative top margin: the machine starts BELOW the headline;
+     the bottom negative margin absorbs the scale's layout ghost so the
+     status line and next section tuck right under the visual cabinet */
+  .machine { transform: scale(.52); margin: 0 0 -225px -59px; }
+  .machine-stage { margin-top: 30px; }
   .hero { padding: 30px 0 48px; }
   .hero h1 { font-size: clamp(24px, 7vw, 32px); }
   .hero .eyebrow { font-size: 11px; letter-spacing: .12em; }
@@ -683,7 +687,7 @@ button, .pick-item, .lever { touch-action: manipulation; }
   footer .staff button { padding: 10px 8px; font-size: 14px; }
 }
 @media (max-width: 360px) {
-  .machine { transform: scale(.42); margin: -132px 0 -142px -44px; }
+  .machine { transform: scale(.42); margin: 0 0 -254px -52px; }
   .hero h1 { font-size: 22px; }
   .pick-grid { grid-template-columns: 1fr 1fr; }
 }
