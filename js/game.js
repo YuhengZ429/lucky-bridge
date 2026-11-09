@@ -433,7 +433,7 @@
       div.className = 'g-item';
       div.style.animationDelay = `${.25 + i * .18}s`;
       div.innerHTML = `
-        <div class="ph"><img src="${p.img}" alt="${p.name}"><span class="qty">× ${inventory[p.id]}</span></div>
+        <div class="ph"><img src="${p.img}" alt="${p.name}"><span class="qty">× 1</span></div>
         <h4>${p.name}${p.special ? ' ⭐' : ''}</h4>`;
       items.appendChild(div);
     });
