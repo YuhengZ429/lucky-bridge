@@ -36,11 +36,11 @@ const LB_CONFIG = {
      (each spin lands in exactly one bucket; a lone emblem
       simply acts as a normal symbol within the bucket) */
   weights: {
-    grand:     2.0,
-    doubleHit: 5.1,
-    first:     3.5,
-    second:   39.4,
-    third:    50.0,
+    grand:    10.0,
+    doubleHit: 10.0,
+    first:    10.0,
+    second:   30.0,
+    third:    40.0,
   },
 
   /* chance that a "third"/"second" outcome shows one emblem
