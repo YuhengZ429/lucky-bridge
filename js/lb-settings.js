@@ -6,25 +6,25 @@
 const LB_CONFIG = {
   /* ----- reel symbols (normal) ----- */
   symbols: [
-    { id: 'greeting',  name: 'Greeting',  img: 'assets/symbols/greeting.png?v=e1e0ff5'  },
-    { id: 'proud',     name: 'Proud',     img: 'assets/symbols/proud.png?v=e1e0ff5'     },
-    { id: 'shocked',   name: 'Shocked',   img: 'assets/symbols/shocked.png?v=e1e0ff5'   },
-    { id: 'anxious',   name: 'Anxious',   img: 'assets/symbols/anxious.png?v=e1e0ff5'   },
-    { id: 'confused',  name: 'Confused',  img: 'assets/symbols/confused.png?v=e1e0ff5'  },
-    { id: 'back',      name: 'Peek',      img: 'assets/symbols/back.png?v=e1e0ff5'      },
+    { id: 'greeting',  name: 'Greeting',  img: 'assets/symbols/greeting.png?v=d2cc84d'  },
+    { id: 'proud',     name: 'Proud',     img: 'assets/symbols/proud.png?v=d2cc84d'     },
+    { id: 'shocked',   name: 'Shocked',   img: 'assets/symbols/shocked.png?v=d2cc84d'   },
+    { id: 'anxious',   name: 'Anxious',   img: 'assets/symbols/anxious.png?v=d2cc84d'   },
+    { id: 'confused',  name: 'Confused',  img: 'assets/symbols/confused.png?v=d2cc84d'  },
+    { id: 'back',      name: 'Peek',      img: 'assets/symbols/back.png?v=d2cc84d'      },
   ],
 
   /* ----- the special symbol ----- */
-  special: { id: 'special', name: 'BRIDGE', img: 'assets/symbols/special.png?v=e1e0ff5' },
+  special: { id: 'special', name: 'BRIDGE', img: 'assets/symbols/special.png?v=d2cc84d' },
 
   /* ----- prizes -----
      stock is the initial inventory; live counts persist in
      localStorage so a page refresh never resets the table. */
   prizes: [
-    { id: 'keychain',    name: 'Keychain',       img: 'assets/prizes/keychain.jpg?v=e1e0ff5',    stock: 90, special: false },
-    { id: 'postcard',    name: 'Postcard',       img: 'assets/prizes/postcard.jpg?v=e1e0ff5',    stock: 90, special: false },
-    { id: 'stickersheet',name: 'Sticker Pack',   img: 'assets/prizes/stickersheet.jpg?v=e1e0ff5',stock: 120, special: false },
-    { id: 'coaster',     name: 'Coaster',        img: 'assets/prizes/coaster.jpg?v=e1e0ff5',     stock: 50, special: true  },
+    { id: 'keychain',    name: 'Keychain',       img: 'assets/prizes/keychain.jpg?v=d2cc84d',    stock: 90, special: false },
+    { id: 'postcard',    name: 'Postcard',       img: 'assets/prizes/postcard.jpg?v=d2cc84d',    stock: 90, special: false },
+    { id: 'stickersheet',name: 'Sticker Pack',   img: 'assets/prizes/stickersheet.jpg?v=d2cc84d',stock: 120, special: false },
+    { id: 'coaster',     name: 'Coaster',        img: 'assets/prizes/coaster.jpg?v=d2cc84d',     stock: 50, special: true  },
   ],
 
   /* ----- outcome weights (%), "generous" tuning -----
@@ -36,11 +36,11 @@ const LB_CONFIG = {
      (each spin lands in exactly one bucket; a lone emblem
       simply acts as a normal symbol within the bucket) */
   weights: {
-    grand:     2.0,
-    doubleHit: 5.1,
-    first:     3.5,
-    second:   39.4,
-    third:    50.0,
+    grand:    10.0,
+    doubleHit: 10.0,
+    first:    10.0,
+    second:   30.0,
+    third:    40.0,
   },
 
   /* chance that a "third"/"second" outcome shows one emblem
