@@ -17,6 +17,8 @@
   let inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
   let claimLog = [];
   let SERVER_MODE = null; // null = probing, true = shared API, false = local
+  let armedTier = null;   /* one-shot rig armed on the server: the next spin on
+                             any device lands on this tier, once (staff tool) */
 
   /* on GitHub Pages the API lives on a separate host (C.apiBase);
      anywhere else (same-origin hosting) use relative /api/* */
@@ -60,11 +62,11 @@
   }
 
   async function refreshState() {
-    if (SERVER_MODE === false) { localLoad(); renderPrizeGrid(); return; }
+    if (SERVER_MODE === false) { armedTier = null; localLoad(); renderPrizeGrid(); return; }
     try {
       const s = await api('state');
       SERVER_MODE = true;
-      inventory = s.inv; claimLog = s.log;
+      inventory = s.inv; claimLog = s.log; armedTier = s.riggedNext || null;
       renderPrizeGrid();
     } catch {
       if (SERVER_MODE === true) return;  // transient hiccup — keep the cached view
@@ -131,17 +133,11 @@
   const rand = (n) => Math.floor(Math.random() * n);
   const pick = (arr) => arr[rand(arr.length)];
 
-  /** Decide the three reel symbols by weighted tier, then construct a matching combo. */
-  function generateOutcome() {
-    const entries = Object.entries(C.weights);
-    const total = entries.reduce((s, [, w]) => s + w, 0);
-    let r = Math.random() * total;
-    let bucket = entries[0][0];
-    for (const [k, w] of entries) { if ((r -= w) <= 0) { bucket = k; break; } }
-
+  /** Build a three-reel combo that lands on the given tier (visual flavour included). */
+  function tierIds(key) {
     const N = C.symbols.map(s => s.id);
     const S = C.special.id;
-    switch (bucket) {
+    switch (key) {
       case 'grand':     return [S, S, S];
       case 'doubleHit': return shuffle([S, S, pick(N)]);
       case 'first':     { const a = pick(N); return [a, a, a]; }
@@ -158,6 +154,16 @@
         return shuffle(three);
       }
     }
+  }
+
+  /** Decide the three reel symbols by weighted tier. */
+  function generateOutcome() {
+    const entries = Object.entries(C.weights);
+    const total = entries.reduce((s, [, w]) => s + w, 0);
+    let r = Math.random() * total;
+    let bucket = entries[0][0];
+    for (const [k, w] of entries) { if ((r -= w) <= 0) { bucket = k; break; } }
+    return tierIds(bucket);
   }
 
   /** Which reels deserve the winner glow. */
@@ -475,15 +481,25 @@
 
   function setStatus(html) { statusEl.innerHTML = html; }
 
-  function spin(forcedIds) {
+  async function spin(forcedIds) {
     if (spinning) return;
     spinning = true;
     spinBtn.disabled = true;
     LB_AUDIO.unlock();
     setStatus('Good luck<span class="dots"></span>');
 
+    /* one-shot server rig: if a tier is armed, THIS spin lands on it and the
+       server flag is consumed atomically — afterwards odds go back to normal */
+    let forced = forcedIds ? [...forcedIds] : null;
+    if (!forced && SERVER_MODE === true && armedTier && TIERS[armedTier]) {
+      try {
+        const r = await api('take-rig', {});
+        if (r && r.rigged && TIERS[r.rigged]) forced = tierIds(r.rigged);
+      } catch { /* API hiccup → fall through to a normal weighted spin */ }
+    }
+
     LB_SLOT.pullLever(() => {
-      const ids = forcedIds ? [...forcedIds] : generateOutcome();
+      const ids = forced || generateOutcome();
       LB_SLOT.spinTo(ids.map(symById), {
         onReelStop: () => {},
         onDone: () => {
@@ -644,6 +660,7 @@
     inventory: () => ({ ...inventory }),
     log: () => [...claimLog],
     mode: () => SERVER_MODE,
+    rigged: () => armedTier,
     async reset(pin) {
       if (SERVER_MODE === false) {
         inventory = Object.fromEntries(C.prizes.map(p => [p.id, p.stock]));
