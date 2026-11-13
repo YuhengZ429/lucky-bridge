@@ -491,6 +491,16 @@
     /* one-shot server rig: if a tier is armed, THIS spin lands on it and the
        server flag is consumed atomically — afterwards odds go back to normal */
     let forced = forcedIds ? [...forcedIds] : null;
+    if (!forced) {
+      /* device-local one-shot rig, armed by visiting ?rig=<tier> (staff tool) */
+      try {
+        const localRig = localStorage.getItem('luckyBridge.rig.v1');
+        if (localRig && TIERS[localRig]) {
+          forced = tierIds(localRig);
+          localStorage.removeItem('luckyBridge.rig.v1');
+        }
+      } catch { /* storage unavailable → normal spin */ }
+    }
     if (!forced && SERVER_MODE === true && armedTier && TIERS[armedTier]) {
       try {
         const r = await api('take-rig', {});
@@ -643,6 +653,12 @@
   });
 
   /* ================= boot ================= */
+  /* device-local one-shot rig: opening the page with ?rig=<tier> arms THIS
+     device's next spin — consumed by that spin, then cleared automatically */
+  try {
+    const rigParam = new URLSearchParams(location.search).get('rig');
+    if (rigParam && TIERS[rigParam]) localStorage.setItem('luckyBridge.rig.v1', rigParam);
+  } catch { /* private-mode storage — ignore */ }
   LB_SLOT.setIdle();
   renderPrizeGrid();
   renderRules();
