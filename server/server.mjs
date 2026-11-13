@@ -8,6 +8,9 @@
      POST /api/claim      { tier, items:[{id,qty}] } → 200 { inv, log } | 409 insufficient
      POST /api/claimAll   { tier }                   → 200 { inv, log, claimed }
      POST /api/reset      { pin }                    → 200 { inv, log } | 403 wrong pin
+     POST /api/rig-next   { pin, tier }              → 200 { ok, riggedNext } | 403 wrong pin
+                          (empty tier disarms)
+     POST /api/take-rig   {}                         → 200 { rigged: tier|null }  (one-shot, consumed atomically)
    ============================================================ */
 import http from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -25,6 +28,8 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'state.json');
 const PIN = process.env.STAFF_PIN || '2026';
 const PORT = +(process.env.PORT || 3000);
+/* outcome tiers a spin can be rigged to land on */
+const TIERS = ['grand', 'doubleHit', 'first', 'second', 'third'];
 
 const PRIZES = [
   { id: 'keychain',     name: 'Keychain',     stock: 90,  special: false },
@@ -35,12 +40,12 @@ const PRIZES = [
 const NAMES = Object.fromEntries(PRIZES.map(p => [p.id, p.name]));
 
 /* ---------- state (persisted across restarts when possible) ---------- */
-let state = { inv: Object.fromEntries(PRIZES.map(p => [p.id, p.stock])), log: [] };
+let state = { inv: Object.fromEntries(PRIZES.map(p => [p.id, p.stock])), log: [], riggedNext: null };
 try {
   await mkdir(DATA_DIR, { recursive: true });
   const raw = JSON.parse(await readFile(STATE_FILE, 'utf8'));
   if (raw && typeof raw.inv === 'object' && Array.isArray(raw.log)) {
-    state = { inv: {}, log: raw.log.slice(-500) };
+    state = { inv: {}, log: raw.log.slice(-500), riggedNext: TIERS.includes(raw.riggedNext) ? raw.riggedNext : null };
     for (const p of PRIZES) state.inv[p.id] = Math.max(0, Math.min(p.stock * 10, Math.floor(+raw.inv[p.id] || 0)));
   }
 } catch { /* fresh start */ }
@@ -95,7 +100,27 @@ async function handleApi(req, res, pathname) {
     return res.end();
   }
   if (req.method === 'GET' && pathname === '/api/state') {
-    return json(res, 200, { inv: state.inv, log: state.log }, cors);
+    return json(res, 200, { inv: state.inv, log: state.log, riggedNext: state.riggedNext || null }, cors);
+  }
+  if (req.method === 'POST' && pathname === '/api/rig-next') {
+    const body = await readBody(req).catch(() => ({}));
+    if (String(body.pin) !== PIN) return json(res, 403, { error: 'wrong pin' }, cors);
+    if (!body.tier) {                        // arm without tier → disarm
+      state.riggedNext = null;
+      persist();
+      return json(res, 200, { ok: true, riggedNext: null }, cors);
+    }
+    if (!TIERS.includes(body.tier)) return json(res, 400, { error: 'unknown tier' }, cors);
+    state.riggedNext = body.tier;
+    persist();
+    return json(res, 200, { ok: true, riggedNext: state.riggedNext }, cors);
+  }
+  if (req.method === 'POST' && pathname === '/api/take-rig') {
+    /* one-shot: the next spin anywhere consumes the armed tier (atomic — single thread) */
+    const t = TIERS.includes(state.riggedNext) ? state.riggedNext : null;
+    state.riggedNext = null;
+    if (t) persist();
+    return json(res, 200, { rigged: t }, cors);
   }
   if (req.method === 'POST' && pathname === '/api/claim') {
     const body = await readBody(req);
@@ -122,9 +147,9 @@ async function handleApi(req, res, pathname) {
   if (req.method === 'POST' && pathname === '/api/reset') {
     const body = await readBody(req).catch(() => ({}));
     if (String(body.pin) !== PIN) return json(res, 403, { error: 'wrong pin' }, cors);
-    state = { inv: Object.fromEntries(PRIZES.map(p => [p.id, p.stock])), log: [] };
+    state = { inv: Object.fromEntries(PRIZES.map(p => [p.id, p.stock])), log: [], riggedNext: null };
     persist();
-    return json(res, 200, { inv: state.inv, log: state.log }, cors);
+    return json(res, 200, { inv: state.inv, log: state.log, riggedNext: null }, cors);
   }
   return json(res, 404, { error: 'not found' }, cors);
 }
